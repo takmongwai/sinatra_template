@@ -8,10 +8,10 @@ defaults: &defaults
   pool: 5
   timeout: 5000
   allow_concurrency: false
-  #host: 127.0.0.1
-  #port: 6432
-  #username: pgsql
-  #password: none
+#  host: 127.0.0.1
+#  port: 54321
+#  username: pgsql
+#  password: none
 
 development:
   <<: *defaults

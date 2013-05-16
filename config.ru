@@ -187,7 +187,6 @@ end
 # ActiveSupport::JSON::Encoding.escape_html_entities_in_json = true
 
 
-
 # initialize ActiveRecord
 require 'active_record'
 require "sinatra/activerecord"
@@ -199,7 +198,7 @@ require "sinatra/activerecord"
   self.time_zone_aware_attributes = false
   self.logger = $common_logger
 end
-
+use ::ActiveRecord::ConnectionAdapters::ConnectionManagement
 
 if USE_MEM_CACHE
   #http://robbinfan.com/blog/33/activerecord-object-cache
@@ -218,7 +217,6 @@ if USE_MEM_CACHE
 end
 
 use ::Rack::CommonLogger,$common_logger
-use ::ActiveRecord::ConnectionAdapters::ConnectionManagement
 
 # Set autoload directory
 %w{models controllers lib helpers}.each do |dir|
