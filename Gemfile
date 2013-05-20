@@ -16,6 +16,7 @@ gem 'ncommons',:git => 'git://github.com/weidewang/ncommons.git'
 gem 'dalli'
 gem 'second_level_cache'
 gem 'kgio'
+gem 'racksh'
 
 group :production do
   gem 'rainbows'
