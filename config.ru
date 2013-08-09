@@ -27,9 +27,8 @@ log_file = "#{ENV['LOG_PATH']}/#{ENV["RACK_ENV"]}.log"
 
 case ENV["RACK_ENV"]
 when "production" then
-  $common_logger = ::Logger.new(log_file)
-  $common_logger.level = ::Logger::WARN
-  #$common_logger.level = ::Logger::DEBUG
+  $common_logger = ::Logger.new(log_file,'daily')
+  $common_logger.level = ::Logger::INFO
 when "development" then
   $common_logger = ::Logger.new(log_file)
   $common_logger.level = ::Logger::DEBUG
@@ -39,6 +38,13 @@ when "test" then
 else
   $common_logger = ::Logger.new("/dev/null")
 end
+
+$common_logger.datetime_format = '%Y-%m-%d %H:%M:%S'
+$common_logger.formatter = proc do |severity, datetime, progname, msg|
+  %Q~"#{datetime}",#{severity}: #{msg}\n~
+end
+
+
 
 helpers do
   def logger
@@ -125,7 +131,7 @@ configure do
 
   #public_folder
   #public文件夹的位置。
-  set :public_folder,ENV['APP_ROOT'] + "public"
+  set :public_folder,ENV['APP_ROOT'] + "/public"
 
   #reload_templates
   #是否每个请求都重新载入模板。 在development mode和 Ruby 1.8.6 中被企业（用来 消除一个Ruby内存泄漏的bug）。
@@ -166,7 +172,7 @@ configure do
 
   #views
   #views 文件夹。
-  set :views,ENV['APP_ROOT'] + "views"
+  set :views,ENV['APP_ROOT'] + "/views"
 end
 
 configure :production do
@@ -176,8 +182,6 @@ end
 configure :development do
   #set :logging,::Logger::DEBUG
 end
-
-
 
 
 # initialize json
@@ -207,7 +211,14 @@ if USE_MEM_CACHE
   require 'dalli'
   require 'active_support/cache/dalli_store'
   Dalli.logger = $common_logger
-  CACHE = ActiveSupport::Cache::DalliStore.new("127.0.0.1:11211")
+  dalli_opts = {
+      :namespace => "ticket_event_api", 
+      :compress => true,
+      :expires_in => 15.minute
+  }
+  CACHE = ActiveSupport::Cache::DalliStore.new("127.0.0.1:11211",dalli_opts)
+  DALLI = Dalli::Client.new('127.0.0.1:11211', dalli_opts)
+  
   require 'second_level_cache'
   SecondLevelCache.configure do |config|
     config.cache_store = CACHE
