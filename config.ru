@@ -173,6 +173,9 @@ configure do
   #views
   #views 文件夹。
   set :views,ENV['APP_ROOT'] + "/views"
+
+  #Sinatra bug 包含以下两个 header 会500错误
+  set :protection, :except => [:remote_referrer, :json_csrf]
 end
 
 configure :production do
